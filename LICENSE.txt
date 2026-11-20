@@ -1,0 +1,20 @@
+S2T Local Early Access Binary License
+
+Copyright (c) 2026 Octopus-inc. All rights reserved.
+
+Permission is granted to download and use the unmodified S2T Local binary
+release free of charge for personal or commercial evaluation and use.
+
+This permission does not grant rights to reverse engineer, modify, sublicense,
+sell, or redistribute S2T Local as a standalone product or as part of another
+product without separate written permission.
+
+Third-party software and components are governed by their own licenses.
+Faster-Whisper-XXL is not distributed as part of S2T Local and must be obtained
+separately from its upstream project.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED
+BY LAW, THE COPYRIGHT HOLDER SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY ARISING FROM THE SOFTWARE OR ITS USE.
