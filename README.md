@@ -21,11 +21,9 @@ S2T Local запускает распознавание на вашем комп
 
 ## Скачать
 
-Текущая версия Early Access: **0.1.1**.
+Используйте последний GitHub Release этого репозитория.
 
-- [Скачать S2T Local 0.1.1 для Windows](https://github.com/Octopus-inc/s2t-local/releases/download/v0.1.1/S2T-Local-0.1.1-windows-x64.zip)
-- [SHA-256](https://github.com/Octopus-inc/s2t-local/releases/download/v0.1.1/S2T-Local-0.1.1-windows-x64.zip.sha256.txt)
-- [Страница релиза v0.1.1](https://github.com/Octopus-inc/s2t-local/releases/tag/v0.1.1)
+Текущая версия Early Access: **0.1.1**.
 
 Перед распаковкой при желании проверьте SHA-256 по приложенному файлу `.sha256.txt`.
 
@@ -64,12 +62,6 @@ Python устанавливать не нужно.
 - Windows-бинарник пока не подписан сертификатом, поэтому SmartScreen может показать предупреждение;
 - Cloud Boost пока не выполняет облачную обработку;
 - это Early Access: совместимость с разным железом ещё расширяется.
-
-## Сообщить об ошибке
-
-Если S2T Local не запускается, не видит движок или некорректно обрабатывает файл, создайте [GitHub Issue](https://github.com/Octopus-inc/s2t-local/issues/new).
-
-Не прикладывайте приватные аудиозаписи или транскрипты к публичному Issue, если они содержат чувствительные данные.
 
 ## Исходный код
 
