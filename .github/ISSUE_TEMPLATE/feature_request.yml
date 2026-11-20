@@ -1,0 +1,35 @@
+name: Предложить функцию
+description: Идея или улучшение для S2T Local
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Какую проблему это решает?
+      description: Опишите ситуацию, а не только желаемую кнопку или настройку.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Как вы представляете решение?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Область
+      options:
+        - Качество распознавания
+        - Скорость
+        - Спикеры
+        - Очередь / UX
+        - Экспорт
+        - Cloud Boost
+        - Установка / обновление
+        - Другое
+    validations:
+      required: true
