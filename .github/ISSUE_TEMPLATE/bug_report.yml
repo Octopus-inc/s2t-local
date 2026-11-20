@@ -1,0 +1,61 @@
+name: Сообщить об ошибке
+description: S2T Local не запускается или работает некорректно
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо за отчёт. Не прикладывайте приватные аудиозаписи или транскрипты, если они содержат чувствительные данные.
+
+  - type: input
+    id: version
+    attributes:
+      label: Версия S2T Local
+      placeholder: "например, 0.1.1"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Где возникла проблема?
+      options:
+        - Запуск приложения
+        - Настройка Faster-Whisper-XXL
+        - Добавление файла
+        - Очередь
+        - Распознавание
+        - Разделение по спикерам
+        - Просмотр / экспорт результата
+        - Cloud Boost interest button
+        - Другое
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Что ожидалось?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Что произошло?
+    validations:
+      required: true
+
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Компьютер
+      description: Windows, CPU, GPU и объём RAM, если известны.
+      placeholder: "Windows 11, Ryzen 5 5600, GTX 1070 8 GB, 16 GB RAM"
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Дополнительные детали
+      description: Можно приложить скриншот или текст ошибки. Не публикуйте чувствительные данные.
