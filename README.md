@@ -29,12 +29,13 @@ S2T Local запускает распознавание на вашем комп
 
 ## Установка
 
-1. Скачайте `S2T-Local-0.1.1-windows-x64.zip`.
+1. Скачайте `S2T-Local-0.1.2-windows-x64.zip`.
 2. Распакуйте архив в обычную папку, например `C:\Apps\S2T Local`.
-3. Скачайте Faster-Whisper-XXL из официальных Releases проекта Purfview:
-   https://github.com/Purfview/whisper-standalone-win/releases
-4. Распакуйте Faster-Whisper-XXL внутрь папки `engine` рядом с `S2T-Local.exe`.
-5. Запустите `S2T-Local.exe`.
+3. Запустите `S2T-Local.exe`.
+4. При первом запуске нажмите **«Установить движок»** — S2T Local скачает Faster-Whisper-XXL напрямую из официального релиза Purfview, проверит размер и SHA-256 и установит движок в локальные данные пользователя.
+
+Ручная установка Faster-Whisper-XXL из официальных Releases Purfview остаётся доступна как fallback:
+https://github.com/Purfview/whisper-standalone-win/releases
 
 Python устанавливать не нужно.
 
