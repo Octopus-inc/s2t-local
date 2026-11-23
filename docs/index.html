@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Транскрибация аудио и видео локально на Windows — S2T Local</title>
+<meta name="description" content="S2T Local: бесплатная транскрибация аудио и видео на Windows с разделением спикеров. Записи обрабатываются на вашем компьютере, без загрузки в облако.">
+<link rel="canonical" href="https://octopus-inc.github.io/s2t-local/"><link rel="stylesheet" href="style.css"><meta name="theme-color" content="#076885">
+<meta property="og:type" content="website"><meta property="og:title" content="S2T Local — локальная транскрибация аудио и видео"><meta property="og:description" content="Расшифровывайте встречи и интервью на своём Windows-компьютере. Бесплатный Early Access.">
+</head><body>
+<header class="site-header"><div class="wrap nav"><a class="brand" href="./">◉ S2T Local</a><nav class="navlinks" aria-label="Основная навигация"><a href="#features">Возможности</a><a href="interviews/">Интервью</a><a href="meetings/">Совещания</a><a href="#install">Установка</a></nav></div></header>
+<main><div class="hero"><div class="wrap"><div class="eyebrow">Бесплатно · Windows · Early Access 0.1.3</div>
+<h1>Расшифровывайте аудио и видео в текст. На своём компьютере.</h1>
+<p class="lead">S2T Local распознаёт речь в записях встреч и интервью, разделяет реплики по спикерам и сохраняет результат в TXT. Аудиофайлы не отправляются в облако для распознавания.</p>
+<a class="btn" href="https://github.com/Octopus-inc/s2t-local/releases/tag/v0.1.3">Скачать S2T Local 0.1.3</a>
+<a class="btn secondary" href="#how">Как это работает</a>
+<p class="fine">Windows 10/11 · Portable ZIP · без установки Python · при первом запуске потребуется загрузить движок (~1,4 ГБ).</p>
+</div></div>
+<section id="features"><div class="wrap"><h2>Для записей, с которыми нужно работать</h2>
+<div class="grid"><article class="tile"><h3>Разделение спикеров</h3><p>Реплики группируются по говорящим. Метки спикеров можно переименовывать; автоматическое разделение требует проверки.</p></article>
+<article class="tile"><h3>Очередь записей</h3><p>Добавляйте аудио- и видеофайлы, отслеживайте прогресс и состояние обработки.</p></article>
+<article class="tile"><h3>Результат в TXT</h3><p>Читайте транскрипт в браузере, копируйте текст или скачивайте файл.</p></article></div></div></section>
+<section id="how" class="soft"><div class="wrap"><h2>Как работает S2T Local</h2><ol class="steps">
+<li><strong>Скачайте ZIP</strong> с официального GitHub Releases и запустите S2T-Local.exe.</li>
+<li><strong>Установите движок</strong> при первом запуске: приложение загрузит Faster-Whisper-XXL по вашему запросу.</li>
+<li><strong>Добавьте запись</strong>, выберите «Точно» (medium) либо «Быстро» (small), а также число спикеров.</li>
+<li><strong>Получите транскрипт</strong> в локальном веб-интерфейсе и скачайте TXT.</li>
+</ol><p class="note">Веб-интерфейс открывается на <code>127.0.0.1:8765</code>, но обработка выполняется локально в приложении Windows. Это не онлайн-сервис.</p></div></section>
+<section><div class="wrap"><h2>Типичные задачи</h2><div class="grid">
+<article class="tile"><h3><a href="interviews/">Расшифровка интервью</a></h3><p>Работа с репликами интервьюера и респондентов, анализ длинных разговоров.</p></article>
+<article class="tile"><h3><a href="meetings/">Расшифровка совещаний</a></h3><p>Создание текстовой расшифровки рабочей встречи для последующего протоколирования.</p></article>
+<article class="tile"><h3>Локальная работа</h3><p>Запись и транскрипт остаются на вашем ПК. При добровольной отправке отзыва действуют отдельные условия приватности.</p></article>
+</div></div></section>
+<section id="install" class="soft"><div class="wrap"><h2>Системные требования и ограничения</h2>
+<p>Нужен компьютер с Windows 10 или 11. Рекомендуется совместимая видеокарта NVIDIA; возможен CPU-режим. Скорость зависит от оборудования, длины записи и выбранной модели. Python отдельно устанавливать не нужно.</p>
+<p>Программа находится в раннем доступе. У Windows-EXE пока нет сертификата подписи: SmartScreen может показать предупреждение. Устанавливайте только из официального релиза и при необходимости сверяйте контрольную сумму SHA-256.</p>
+<p><strong>Cloud Boost в 0.1.3 — демонстрационный режим.</strong> Настоящая облачная транскрибация и оплата отсутствуют. Отдельная проверка этой версии на совершенно новой Windows-системе ещё не выполнена.</p>
+<a class="btn" href="https://github.com/Octopus-inc/s2t-local/releases/tag/v0.1.3">Открыть официальный релиз</a></div></section>
+<section class="faq"><div class="wrap"><h2>Вопросы и ответы</h2>
+<details><summary>Нужно ли загружать запись на сервер?</summary><p>Нет. Для распознавания приложение обрабатывает записи локально. Кнопки Cloud Boost и обратной связи описаны отдельно в политике приватности.</p></details>
+<details><summary>Можно ли распознать часовой файл?</summary><p>Да, приложение предназначено в том числе для длинных записей. Скорость и качество зависят от компьютера, записи и выбранного режима.</p></details>
+<details><summary>Можно ли автоматически получить протокол встречи?</summary><p>Сейчас S2T Local создаёт транскрипт в TXT. Генерация протокола и списка задач не входит в версию 0.1.3.</p></details>
+<details><summary>Сколько стоит?</summary><p>Версия Early Access 0.1.3 доступна бесплатно. Платной транскрибации в приложении сейчас нет.</p></details>
+</div></section></main>
+<footer class="site-footer"><div class="wrap footrow"><span>S2T Local · Early Access 0.1.3</span><div><a href="https://github.com/Octopus-inc/s2t-local/releases/tag/v0.1.3">Скачать</a><a href="https://github.com/Octopus-inc/s2t-local/blob/main/PRIVACY.md">Приватность</a><a href="https://github.com/Octopus-inc/s2t-local/issues">Сообщить о проблеме</a></div></div></footer>
+</body></html>
