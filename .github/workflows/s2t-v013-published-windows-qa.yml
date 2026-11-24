@@ -1,0 +1,214 @@
+name: S2T Local v0.1.3 / Published Windows ZIP QA
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: s2t-v013-release-windows-qa
+  cancel-in-progress: false
+
+jobs:
+  qa:
+    runs-on: windows-2025
+    timeout-minutes: 35
+    steps:
+      - name: Check immutable release on fresh Windows runner
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ProgressPreference = 'SilentlyContinue'
+          $repo = 'Octopus-inc/s2t-local'
+          $tag = 'v0.1.3'
+          $zipName = 'S2T-Local-0.1.3-windows-x64.zip'
+          $manifestName = "$zipName.sha256.txt"
+          $zipHash = '2ba2616c51250743adcba595a09c92b49e486331bfc3374361f54ba34216e81e'
+          $manifestHash = 'ddb0791afcf4baf999e2c5ba35d9ac96fc06a98c9faf449bc896b9b9d2d0fd8c'
+          $engineHash = '237dee23939cdabfc96ef859fc5e584b842c3a5557e0d2ca744e1f87c14c5844'
+          $binarySource = 'fccf9502c7e7a4c26a334ea5550aca94cb22515a'
+          $root = Join-Path $env:RUNNER_TEMP 's2t-013-qa'
+          $assetsDir = Join-Path $root 'assets'
+          $appDir = Join-Path $root 'app'
+          $dataDir = Join-Path $root 'data'
+          $url = 'http://127.0.0.1:18765'
+          $checks = [ordered]@{}
+          $phase = 'INITIAL'
+          $failure = ''
+          $appProcess = $null
+
+          function Mark([string]$key, [string]$value) {
+            $script:checks[$key] = $value
+            Write-Host "$key=$value"
+          }
+          function Api([string]$path) {
+            Invoke-RestMethod -Uri ($url + $path) -TimeoutSec 8
+          }
+          function Stop-App {
+            if ($script:appProcess) {
+              try {
+                if (-not $script:appProcess.HasExited) {
+                  Stop-Process -Id $script:appProcess.Id -Force
+                }
+                [void]$script:appProcess.WaitForExit(10000)
+              } catch {
+                Write-Host '::warning::Could not stop owned QA process'
+              }
+              $script:appProcess = $null
+            }
+          }
+          function Start-App {
+            if ($dataDir -match '\s') { throw 'Unexpected spaces in runner temporary path' }
+            $exe = Join-Path $appDir 'S2T-Local.exe'
+            $script:appProcess = Start-Process -FilePath $exe -ArgumentList @('--no-open-browser','--port','18765','--data-root',$dataDir) -PassThru
+            for ($i=0; $i -lt 60; $i++) {
+              if ($script:appProcess.HasExited) {
+                throw 'S2T-Local.exe exited before local API became ready'
+              }
+              try {
+                $h = Api '/api/health'
+                if ($h.ok -eq $true) { return $h }
+              } catch {}
+              Start-Sleep -Seconds 1
+            }
+            throw 'Packaged API not ready after 60s'
+          }
+
+          try {
+            Mark 'TEST_ID' 'S2T-CLEANWIN-GHA-R1'
+            Mark 'RUN_ID' $env:GITHUB_RUN_ID
+            Mark 'REPORT_MARKER' ('S2T-LOCAL/S2T-CLEANWIN-GHA-R1/' + $env:GITHUB_RUN_ID)
+            Mark 'SOURCE_COMMIT' $binarySource
+            Mark 'RUNNER_IMAGE' "$env:ImageOS/$env:ImageVersion"
+            Mark 'CLEAN_CONSUMER_OS' 'NOT_TESTED'
+            Mark 'NVIDIA_CUDA' 'NOT_TESTED'
+            $phase = 'VERIFY_RELEASE'
+            $metaRaw = @(& gh api 'repos/Octopus-inc/s2t-local/releases/454747200')
+            if ($LASTEXITCODE -ne 0) { throw 'GitHub release API failed' }
+            $meta = ($metaRaw -join [Environment]::NewLine) | ConvertFrom-Json
+            if ($meta.tag_name -ne $tag -or $meta.draft -ne $false -or
+                $meta.prerelease -ne $true -or $meta.body -notmatch $binarySource) {
+              throw 'Release identity/notes do not match immutable accepted candidate'
+            }
+            $all = @($meta.assets)
+            $z = @($all | Where-Object { $_.name -eq $zipName })
+            $m = @($all | Where-Object { $_.name -eq $manifestName })
+            if ($all.Count -ne 2 -or $z.Count -ne 1 -or $m.Count -ne 1 -or
+                $z[0].size -ne 23322873 -or $z[0].digest -ne "sha256:$zipHash" -or
+                $m[0].size -ne 99 -or $m[0].digest -ne "sha256:$manifestHash") {
+              throw 'Unexpected public release asset sizes/digests'
+            }
+            Mark 'RELEASE_METADATA' 'PASS'
+
+            $phase = 'DOWNLOAD'
+            foreach($path in @($assetsDir,$appDir,$dataDir)) {
+              New-Item -ItemType Directory -Force -Path $path | Out-Null
+            }
+            & gh release download $tag --repo $repo --dir $assetsDir --pattern $zipName --pattern $manifestName
+            if ($LASTEXITCODE -ne 0) { throw 'Download from public GitHub Release failed' }
+            $zip = Join-Path $assetsDir $zipName
+            $manifest = Join-Path $assetsDir $manifestName
+            if ((Get-Item -LiteralPath $zip).Length -ne 23322873 -or
+                (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $zipHash -or
+                (Get-FileHash -LiteralPath $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -ne $manifestHash -or
+                (Get-Content -LiteralPath $manifest -Raw).Trim() -ne "$zipHash  $zipName") {
+              throw 'Downloaded release SHA256, size or manifest mismatch'
+            }
+            Mark 'PUBLIC_ZIP_SHA256' 'PASS'
+
+            $phase = 'PACKAGED_FIRST_START'
+            Expand-Archive -LiteralPath $zip -DestinationPath $appDir
+            foreach($name in @('S2T-Local.exe','s2t-transcriber.exe','VERSION','PRIVACY.md','LICENSE.txt','THIRD_PARTY_NOTICES.md')) {
+              if (-not (Test-Path -LiteralPath (Join-Path $appDir $name) -PathType Leaf)) {
+                throw "Missing packaged file: $name"
+              }
+            }
+            if ((Get-Content -LiteralPath (Join-Path $appDir 'VERSION') -Raw).Trim() -ne '0.1.3') {
+              throw 'Packaged version mismatch'
+            }
+            $h = Start-App
+            if ($h.version -ne '0.1.3' -or $h.engine_configured -ne $false -or
+                $h.stored_job_count -ne 0) {
+              throw 'Packaged fresh profile startup mismatch'
+            }
+            $engine = Api '/api/engine'
+            if ($engine.configured -ne $false -or $engine.state -ne 'idle') {
+              throw 'First-start engine not idle and unconfigured'
+            }
+            $jobsRaw = (Invoke-WebRequest -UseBasicParsing -Uri ($url + '/api/jobs')).Content.Trim()
+            if ($jobsRaw -ne '[]') { throw 'Initial jobs JSON should be []' }
+            $privacy = Invoke-WebRequest -UseBasicParsing -Uri ($url + '/privacy')
+            if ($privacy.StatusCode -ne 200 -or $privacy.Content -notmatch 'PostHog') {
+              throw 'Local privacy notice unavailable'
+            }
+            $demo = Api '/api/cloud/demo'
+            if ($demo.provider -ne 'simulator' -or $demo.audio_uploaded -ne $false -or
+                $demo.charge_rub -ne 0) {
+              throw 'Cloud demo invariants violated'
+            }
+            Mark 'FRESH_PROFILE_API_PRIVACY_DEMO' 'PASS'
+
+            $phase = 'ENGINE_RESOURCE_GATE'
+            $freeBytes = ([IO.DriveInfo]::new([IO.Path]::GetPathRoot($dataDir))).AvailableFreeSpace
+            Mark 'FREE_DISK_GIB' ([string][math]::Round($freeBytes / 1GB,2))
+            if ($freeBytes -lt 8GB) {
+              Mark 'ENGINE_INSTALL' 'BLOCKED_INSUFFICIENT_RUNNER_DISK'
+            } else {
+              $phase = 'ENGINE_INSTALL'
+              $start = Invoke-RestMethod -Method Post -Uri ($url + '/api/engine/install') -TimeoutSec 15
+              if ($start.started -ne $true) { throw 'Engine install action not started' }
+              $deadline = (Get-Date).AddMinutes(16)
+              $status = $null
+              while ((Get-Date) -lt $deadline) {
+                Start-Sleep -Seconds 10
+                $status = Api '/api/engine'
+                if ($status.state -eq 'failed') { throw ('Engine installation failed: ' + $status.error) }
+                if ($status.state -eq 'ready') { break }
+                if ($appProcess.HasExited) { throw 'App exited during engine installation' }
+              }
+              if (-not $status -or $status.state -ne 'ready') {
+                throw 'Engine installation timed out (16 min)'
+              }
+              if ($status.sha256 -ne $engineHash) { throw 'Pinned engine SHA-256 mismatch' }
+              $metadata = Get-Content -LiteralPath (Join-Path $dataDir 'engine/install.json') -Raw | ConvertFrom-Json
+              if ($metadata.sha256 -ne $engineHash -or
+                  -not (Test-Path -LiteralPath $metadata.engine -PathType Leaf) -or
+                  (Api '/api/health').engine_configured -ne $true) {
+                throw 'Installed engine missing or not persistent'
+              }
+              Mark 'ENGINE_INSTALL' 'PASS_PINNED_SHA256'
+            }
+          }
+          catch {
+            $failure = ('{0}: {1}' -f $phase, $_.Exception.Message)
+            Write-Host "::error::$failure"
+          }
+          finally {
+            Stop-App
+            if ($failure) { Mark 'OVERALL' 'FAIL' }
+            elseif ($checks['ENGINE_INSTALL'] -like 'BLOCKED*') {
+              Mark 'OVERALL' 'PARTIAL_PASS_ENGINE_LIMITED'
+            } else { Mark 'OVERALL' 'PASS_ENGINE_INSTALLED_ASR_NOT_RUN' }
+            Mark 'FIRST_SPEECH_TRANSCRIPTION' 'NOT_RUN_IN_THIS_GATE'
+            $summary = @(
+              '## S2T v0.1.3 — published ZIP Windows QA',
+              '',
+              'The existing public release ZIP is tested without rebuilding.',
+              'Windows Server runner is not a pristine consumer Windows PC; NVIDIA CUDA is untested.',
+              '',
+              '| Check | Status |',
+              '|---|---|'
+            )
+            foreach($key in $checks.Keys) {
+              $val = ([string]$checks[$key]).Replace('|','/')
+              $summary += ('| ' + $key + ' | ' + $val + ' |')
+            }
+            if ($failure) { $summary += ('Failure: ' + $failure) }
+            $summary += ''
+            $summary += 'A passing job does not close the clean Windows consumer OS or real ASR gate.'
+            ($summary -join [Environment]::NewLine) |
+              Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+          }
+          if ($failure) { throw $failure }
