@@ -179,6 +179,14 @@ jobs:
                 throw 'Installed engine missing or not persistent'
               }
               Mark 'ENGINE_INSTALL' 'PASS_PINNED_SHA256'
+              $phase = 'ENGINE_RESTART'
+              Stop-App
+              Start-Sleep -Seconds 2
+              $bootAfterInstall = Start-App
+              if ($bootAfterInstall.engine_configured -ne $true) {
+                throw 'Installed engine not available after app restart'
+              }
+              Mark 'ENGINE_AFTER_RESTART' 'PASS'
 
               # Generate a synthetic speech WAV with Windows' built-in TTS.
               # No user files are used, and no text or audio leaves this runner.
